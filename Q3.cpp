@@ -52,11 +52,23 @@ public:
         return node;
     }
 
+    Node *deleteMin(Node *node)
+    {
+        if (!node->left)
+        {
+            Node *rightChild = node->right;
+            delete node;
+            return rightChild;
+        }
+        node->left = deleteMin(node->left);
+        return node;
+    }
+
     Node *deleteBST(Node *node, int key)
     {
         if (!node)
         {
-            cout << key << ": Code not found\n";
+            cout << key << " Code not found\n";
             return nullptr;
         }
         if (key < node->data)
@@ -72,6 +84,7 @@ public:
             if (!node->right && !node->left)
             {
                 none++;
+                cout << key << " no sub-branch\n";
                 delete node;
                 return nullptr;
             }
@@ -79,6 +92,7 @@ public:
             if (!node->right)
             {
                 one++;
+                cout << key << " one sub-branch\n";
                 Node *temp = node->left;
                 delete node;
                 return temp;
@@ -87,20 +101,57 @@ public:
             if (!node->left)
             {
                 one++;
+                cout << key << " one sub-branch\n";
                 Node *temp = node->right;
                 delete node;
                 return temp;
             }
+
             two++;
             Node *temp = findMin(node->right);
+            cout << key << " two sub-branches, replaced by " << temp->data << "\n";
             node->data = temp->data;
-            node->right = deleteBST(node->right, temp->data);
+            node->right = deleteMin(node->right);
         }
         return node;
+    }
+
+    void printPreOrder(Node *node)
+    {
+        if (!node)
+            return;
+        cout << node->data << " ";
+        printPreOrder(node->left);
+        printPreOrder(node->right);
     }
 };
 
 int main()
 {
+    BST tree;
+
+    int insertValues[] = {50, 30, 70, 20, 40, 60, 80, 35, 45, 65};
+    for (int val : insertValues)
+    {
+        tree.root = tree.insertBST(tree.root, val);
+    }
+
+    int removeValues[] = {20, 70, 30, 50, 99};
+    for (int val : removeValues)
+    {
+        tree.root = tree.deleteBST(tree.root, val);
+    }
+
+    cout << "Remaining: ";
+    tree.printPreOrder(tree.root);
+    cout << "\n";
+
+    int treeHeight = tree.height(tree.root);
+    if (treeHeight > 0)
+        treeHeight--;
+    cout << "Height " << treeHeight << "\n";
+
+    cout << "Kinds: none " << none << ", one " << one << ", two " << two << "\n";
+
     return 0;
 }
